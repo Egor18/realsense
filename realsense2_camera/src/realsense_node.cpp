@@ -1,6 +1,5 @@
 ﻿#include <realsense2_camera/realsense_node.h>
 #include <realsense2_camera/param_manager.h>
-#include <realsense2_camera/fix_set_exposure.h>
 #include <boost/interprocess/sync/named_mutex.hpp>
 
 using namespace realsense2_camera;
@@ -220,11 +219,6 @@ void RealSenseNode::getDevice() {
             return;
         }
 
-        // make sure the hardware is initialized correctly by
-
-
-
-
         _ctx.set_devices_changed_callback([this](rs2::event_information& info)
         {
             if (info.was_removed(_dev))
@@ -393,37 +387,12 @@ void RealSenseNode::getParameters()
     _pnh.param("serial_no", _serial_no, _serial_no);
 
     _publish_skip_counter = 0;
-
-    _pnh.param("use_fix_set_exposure", _use_fix_set_exposure, DEFAULT_USE_FIX_SET_EXPOSURE);
-    _pnh.param("fix_set_exposure_max_tries", _fix_set_exposure_max_tries, DEFAULT_FIX_SET_EXPOSURE_MAX_TRIES);
-    _pnh.param("fix_set_exposure_max_reset_wait", _fix_set_exposure_max_reset_wait, DEFAULT_FIX_SET_EXPOSURE_MAX_RESET_WAIT);
-    _pnh.param("fix_set_exposure_max_fail_wait", _fix_set_exposure_max_fail_wait, DEFAULT_FIX_SET_EXPOSURE_MAX_FAIL_WAIT);
 }
 
 void RealSenseNode::setupDevice()
 {
     ROS_INFO("setupDevice...");
     try{
-        if(_use_fix_set_exposure)
-        {
-            ROS_INFO("Resetting device to ensure autoexposure can be set correctly...");
-            if(fixSetExposure(_ctx, _dev, ros::Duration(_fix_set_exposure_max_reset_wait),
-                               _fix_set_exposure_max_tries,
-                               ros::Duration(_fix_set_exposure_max_fail_wait)))
-            {
-                ROS_INFO("Device reset completed successfully!");
-            }
-            else
-            {
-              throw std::runtime_error("Device reset failed!");
-            }
-        }
-        else
-        {
-          ROS_INFO("NOT using fix_set_exposure functionality");
-        }
-
-
         if (!_json_file_path.empty())
         {
             if (_dev.is<rs400::advanced_mode>())
@@ -1798,7 +1767,7 @@ bool RealSenseNode::getEnabledProfile(const stream_index_pair& stream_index, rs2
 /**
 Constructor for filter_options, takes a name and a filter.
 */
-filter_options::filter_options(const std::string name, rs2::filter& filter) :
+filter_options::filter_options(const std::string name, rs2::process_interface& filter) :
     filter_name(name),
     filter(filter),
     is_enabled(true) {}

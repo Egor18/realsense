@@ -45,11 +45,6 @@
   <arg name="enable_ros_time"     default="false"/>
   <arg name="align_depth"         default="false"/>
 
-  <arg name="use_fix_set_exposure" default="false"/>
-  <arg name="fix_set_exposure_max_tries" default="5"/>
-  <arg name="fix_set_exposure_max_reset_wait" default="5"/>
-  <arg name="fix_set_exposure_max_fail_wait" default="1"/>
-
   <node pkg="nodelet" type="nodelet" name="$(arg manager)" args="manager" output="screen"/>
   <node pkg="nodelet" type="nodelet" name="realsense2_camera" args="load realsense2_camera/RealSenseNodeFactory $(arg manager)">
     <param name="serial_no"                type="str"  value="$(arg serial_no)"/>
@@ -102,11 +97,6 @@
     <param name="aligned_depth_to_infra1_frame_id"  type="str"  value="camera_aligned_depth_to_infra1_frame"/>
     <param name="aligned_depth_to_infra2_frame_id"  type="str"  value="camera_aligned_depth_to_infra2_frame"/>
     <param name="aligned_depth_to_fisheye_frame_id" type="str"  value="camera_aligned_depth_to_fisheye_frame"/>
-
-    <param name="use_fix_set_exposure" type="bool" value="$(arg use_fix_set_exposure)"/>
-    <param name="fix_set_exposure_max_tries" type="int" value="$(arg fix_set_exposure_max_tries)"/>
-    <param name="fix_set_exposure_max_reset_wait" type="double" value="$(arg fix_set_exposure_max_reset_wait)"/>
-    <param name="fix_set_exposure_max_fail_wait" type="double" value="$(arg fix_set_exposure_max_fail_wait)"/>
   </node>
 </launch>
 

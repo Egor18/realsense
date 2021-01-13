@@ -36,9 +36,6 @@
 
 #include <diagnostic_updater/diagnostic_updater.h>
 #include <diagnostic_updater/update_functions.h>
-#include <librealsense2/hpp/rs_processing.hpp>
-#include <atomic>
-
 
 namespace realsense2_camera
 {
@@ -84,10 +81,10 @@ class RealSenseParamManager;
     class filter_options
     {
     public:
-        filter_options(const std::string name, rs2::filter& filter);
+        filter_options(const std::string name, rs2::process_interface &filter);
         filter_options(filter_options&& other);
         std::string filter_name;           // Friendly name of the filter
-        rs2::filter& filter;    // The filter in use
+        rs2::process_interface& filter;    // The filter in use
         std::atomic_bool is_enabled;       // A boolean controlled by the user that determines whether to apply the filter or not
     };
 
@@ -135,17 +132,6 @@ class RealSenseParamManager;
         struct quaternion
         {
             double x, y, z, w;
-        };
-
-        // required for librealsense v2.16+ compatibility.
-        // see: https://github.com/intel/ros2_intel_realsense/commit/6eb67b6d4a292e430e9b7be376d716799d9335c4
-        class PipelineSyncer : public rs2::asynchronous_syncer
-        {
-        public:
-            void operator()(rs2::frame f) const
-            {
-                invoke(std::move(f));
-            }
         };
 
         static std::string getNamespaceStr();
@@ -240,7 +226,7 @@ class RealSenseParamManager;
         bool _sync_frames;
         bool _pointcloud;
         bool _use_ros_time;
-        PipelineSyncer _syncer;
+        rs2::asynchronous_syncer _syncer;
         uint32_t _publish_skip_counter;
         int _publish_every_nth_frameset;
 
@@ -278,11 +264,6 @@ class RealSenseParamManager;
         int _depth_rate_monitor_consequent_low_rate_frames_counter;
         int _depth_rate_monitor_consequent_low_rate_aligned_frames_counter;
         int _depth_rate_monitor_consequent_low_rate_color_frames_counter;
-
-        bool _use_fix_set_exposure;
-        int _fix_set_exposure_max_tries;
-        double _fix_set_exposure_max_reset_wait; // [s]
-        double _fix_set_exposure_max_fail_wait; // [s]
 
         const std::vector<std::vector<stream_index_pair>> IMAGE_STREAMS = {{{DEPTH, INFRA1, INFRA2},
                                                                             {COLOR},
