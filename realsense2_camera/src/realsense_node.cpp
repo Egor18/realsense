@@ -944,6 +944,14 @@ void RealSenseNode::setupStreams()
                         }
                     }
 
+                    if (stream_type == RS2_STREAM_COLOR)
+                    {
+                        if (_use_depth_rate_monitor)
+                        {
+                            _depth_rate_monitor_num_of_new_color_frames++;
+                        }
+                    }
+
                     stream_index_pair sip{stream_type,stream_index};
                     publishFrame(frame, t,
                                  sip,

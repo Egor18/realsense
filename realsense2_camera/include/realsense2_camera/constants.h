@@ -97,7 +97,7 @@ namespace realsense2_camera
 
     const bool DEFAULT_USE_DEPTH_RATE_MONITOR = true;
     const int DEFAULT_DEPTH_RATE_MONITOR_INITIAL_CYCLES_NUMBER = 20;
-    const int DEFAULT_DEPTH_RATE_MONITOR_MIN_FRAMES_NUMBER_PER_CYCLE = 4;
+    const int DEFAULT_DEPTH_RATE_MONITOR_MIN_FRAMES_NUMBER_PER_CYCLE = 6;
     const int DEFAULT_DEPTH_RATE_MONITOR_CONSEQUENT_LOW_RATE_FRAMES_LIMIT = 6;
 
     using stream_index_pair = std::pair<rs2_stream, int>;
