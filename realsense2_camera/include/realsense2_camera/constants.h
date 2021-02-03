@@ -93,7 +93,7 @@ namespace realsense2_camera
     const std::string DEFAULT_ALIGNED_DEPTH_TO_INFRA2_FRAME_ID = "camera_aligned_depth_to_infra2_frame";
     const std::string DEFAULT_ALIGNED_DEPTH_TO_FISHEYE_FRAME_ID = "camera_aligned_depth_to_fisheye_frame";
 
-    const int PUBLISH_EVERY_NTH_FRAMESET = 0; // 0 or 1 means publish every frameset
+    const double FRAMESET_PUBLISH_FREQUENCY = 0; // 0 means publish every frameset
 
     const bool DEFAULT_USE_DEPTH_RATE_MONITOR = true;
     const int DEFAULT_DEPTH_RATE_MONITOR_INITIAL_CYCLES_NUMBER = 20;

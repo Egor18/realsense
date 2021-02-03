@@ -364,7 +364,7 @@ void RealSenseNode::getParameters()
     _pnh.param("aligned_depth_to_infra2_frame_id",  _depth_aligned_frame_id[INFRA2],  DEFAULT_ALIGNED_DEPTH_TO_INFRA2_FRAME_ID);
     _pnh.param("aligned_depth_to_fisheye_frame_id", _depth_aligned_frame_id[FISHEYE], DEFAULT_ALIGNED_DEPTH_TO_FISHEYE_FRAME_ID);
 
-    _pnh.param("publish_every_nth_frameset", _publish_every_nth_frameset, PUBLISH_EVERY_NTH_FRAMESET);
+    _pnh.param("frameset_publish_frequency", _frameset_publish_frequency, FRAMESET_PUBLISH_FREQUENCY);
 
     _pnh.param("rosbag_filename", _rosbag_filename, _rosbag_filename);
 
@@ -386,7 +386,7 @@ void RealSenseNode::getParameters()
 
     _pnh.param("serial_no", _serial_no, _serial_no);
 
-    _publish_skip_counter = 0;
+    _framesets_per_sec_counter = 0;
 }
 
 void RealSenseNode::setupDevice()
@@ -811,6 +811,7 @@ void RealSenseNode::setupStreams()
 {
 	ROS_INFO("setupStreams...");
 	enable_devices();
+	_last_frameset_publish_time = ros::Time(0);
     try{
 		// Publish image stream info
         for (auto& profiles : _enabled_profiles)
@@ -853,14 +854,18 @@ void RealSenseNode::setupStreams()
                 if (frame.is<rs2::frameset>())
                 {
                     ROS_DEBUG("Frameset arrived.");
+                    _framesets_per_sec_counter++;
                     bool is_depth_arrived = false;
                     rs2::frame depth_frame;
                     auto frameset = frame.as<rs2::frameset>();
 
-                    const bool publish_this_frameset = (_publish_every_nth_frameset == 0) || ((++_publish_skip_counter) % _publish_every_nth_frameset == 0);
+                    double publish_time_diff = (ros::Time::now() - _last_frameset_publish_time).toSec();
+                    const bool publish_this_frameset = (_frameset_publish_frequency == 0) || (publish_time_diff >= (1.0 / _frameset_publish_frequency));
 
                     if (publish_this_frameset)
                     {
+                        ROS_INFO("publish frameset; publish_time_diff: %f", publish_time_diff);
+                        _last_frameset_publish_time = ros::Time::now();
                         for (auto it = frameset.begin(); it != frameset.end(); ++it)
                         {
                             auto f = (*it);
@@ -1680,6 +1685,9 @@ void RealSenseNode::setHealthTimers() {
   if (_use_depth_rate_monitor) {
     auto depth_rate_monitor_callback = [this](const ros::TimerEvent&) -> void
     {
+        ROS_INFO("Incoming camera framesets per second: %d: %s", _framesets_per_sec_counter, _namespace.c_str());
+        _framesets_per_sec_counter = 0;
+
         if (_depth_rate_monitor_initial_cycles_counter < _depth_rate_monitor_initial_cycles_number) {
             _depth_rate_monitor_initial_cycles_counter++;
         } else {
